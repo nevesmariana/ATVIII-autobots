@@ -12,8 +12,8 @@ import com.autobots.automanager.entidades.Documento;
 import com.autobots.automanager.excecoes.DocumentoDuplicadoException;
 import com.autobots.automanager.excecoes.DocumentoNaoEncontradoException;
 import com.autobots.automanager.mapper.DocumentoMapper;
-import com.autobots.automanager.repositorios.ClienteRepositorio;
 import com.autobots.automanager.repositorios.DocumentoRepositorio;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 
 @Service
 public class DocumentoService {
@@ -25,7 +25,7 @@ public class DocumentoService {
     private DocumentoMapper mapper;
 
     @Autowired
-    private ClienteRepositorio clienteRepositorio;
+    private UsuarioRepositorio usuarioRepositorio;
 
     public DocumentoResponseDTO cadastrarDocumento(
             DocumentoRequestDTO dto) {
@@ -81,12 +81,12 @@ public class DocumentoService {
         Documento documento = repositorio.findById(id)
                 .orElseThrow(() -> new DocumentoNaoEncontradoException(id));
 
-            clienteRepositorio.findByDocumentos_Id(id)
+        usuarioRepositorio.findByDocumentos_Id(id)
                 .ifPresentOrElse(
-                    cliente -> {
-                        cliente.getDocumentos().remove(documento);
-                            clienteRepositorio.save(cliente);
-                    },
-                () -> repositorio.delete(documento));
+                        usuario -> {
+                            usuario.getDocumentos().removeIf(d -> d.getId().equals(id));
+                            usuarioRepositorio.save(usuario);
+                        },
+                        () -> repositorio.delete(documento));
     }
 }

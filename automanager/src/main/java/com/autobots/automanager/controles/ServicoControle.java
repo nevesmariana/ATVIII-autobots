@@ -19,68 +19,61 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.autobots.automanager.dto.request.ClienteRequestDTO;
-import com.autobots.automanager.dto.response.ClienteResponseDTO;
-import com.autobots.automanager.hateoas.AdicionadorLinkCliente;
-import com.autobots.automanager.service.ClienteService;
+import com.autobots.automanager.dto.request.ServicoRequestDTO;
+import com.autobots.automanager.dto.response.ServicoResponseDTO;
+import com.autobots.automanager.hateoas.AdicionadorLinkServico;
+import com.autobots.automanager.service.ServicoService;
 
 @RestController
-@RequestMapping("/clientes")
-public class ClienteControle {
+@RequestMapping("/servicos")
+public class ServicoControle {
 
     @Autowired
-    private ClienteService service;
+    private ServicoService service;
 
     @Autowired
-    private AdicionadorLinkCliente adicionadorLink;
+    private AdicionadorLinkServico adicionadorLink;
 
     @GetMapping
-    public ResponseEntity<CollectionModel<ClienteResponseDTO>> obterClientes() {
-        List<ClienteResponseDTO> lista = service.obterClientes();
+    public ResponseEntity<CollectionModel<ServicoResponseDTO>> obterServicos() {
+        List<ServicoResponseDTO> lista = service.obterServicos();
         adicionadorLink.adicionarLink(lista);
 
-        CollectionModel<ClienteResponseDTO> colecao = CollectionModel.of(lista);
-        colecao.add(linkTo(methodOn(ClienteControle.class).obterClientes()).withSelfRel());
-        colecao.add(linkTo(methodOn(ClienteControle.class).cadastrarCliente(null)).withRel("cadastrar"));
-
+        CollectionModel<ServicoResponseDTO> colecao = CollectionModel.of(lista);
+        colecao.add(linkTo(methodOn(ServicoControle.class).obterServicos()).withSelfRel());
+        colecao.add(linkTo(methodOn(ServicoControle.class).cadastrarServico(null)).withRel("cadastrar"));
         return ResponseEntity.ok(colecao);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> obterCliente(@PathVariable Long id) {
-        ClienteResponseDTO resposta = service.obterCliente(id);
+    public ResponseEntity<ServicoResponseDTO> obterServico(@PathVariable Long id) {
+        ServicoResponseDTO resposta = service.obterServico(id);
         adicionadorLink.adicionarLink(resposta);
-
         return ResponseEntity.ok(resposta);
     }
 
     @PostMapping
-    public ResponseEntity<ClienteResponseDTO> cadastrarCliente(
-            @Valid @RequestBody ClienteRequestDTO dto) {
-
-        ClienteResponseDTO resposta = service.cadastrarCliente(dto);
+    public ResponseEntity<ServicoResponseDTO> cadastrarServico(
+            @Valid @RequestBody ServicoRequestDTO dto) {
+        ServicoResponseDTO resposta = service.cadastrarServico(dto);
         adicionadorLink.adicionarLink(resposta);
-
         return ResponseEntity
-                .created(linkTo(methodOn(ClienteControle.class).obterCliente(resposta.getId())).toUri())
+                .created(linkTo(methodOn(ServicoControle.class).obterServico(resposta.getId())).toUri())
                 .body(resposta);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> atualizarCliente(
+    public ResponseEntity<ServicoResponseDTO> atualizarServico(
             @PathVariable Long id,
-            @Valid @RequestBody ClienteRequestDTO dto) {
-
-        ClienteResponseDTO resposta = service.atualizarCliente(id, dto);
+            @Valid @RequestBody ServicoRequestDTO dto) {
+        ServicoResponseDTO resposta = service.atualizarServico(id, dto);
         adicionadorLink.adicionarLink(resposta);
-
         return ResponseEntity.ok(resposta);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirCliente(@PathVariable Long id) {
-        service.excluirCliente(id);
-
+    public ResponseEntity<Void> excluirServico(@PathVariable Long id) {
+        service.excluirServico(id);
         return ResponseEntity.noContent().build();
     }
 }

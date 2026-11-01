@@ -9,11 +9,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 
-import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.entidades.Documento;
+import com.autobots.automanager.entidades.Email;
 import com.autobots.automanager.entidades.Endereco;
 import com.autobots.automanager.entidades.Telefone;
-import com.autobots.automanager.repositorios.ClienteRepositorio;
+import com.autobots.automanager.entidades.Usuario;
+import com.autobots.automanager.enumeracoes.PerfilUsuario;
+import com.autobots.automanager.enumeracoes.TipoDocumento;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 
 @SpringBootApplication
 public class AutomanagerApplication {
@@ -25,24 +28,20 @@ public class AutomanagerApplication {
 	@Component
 	public static class Runner implements ApplicationRunner {
 		@Autowired
-		public ClienteRepositorio repositorio;
+		public UsuarioRepositorio repositorio;
 
 		@Override
 		public void run(ApplicationArguments args) throws Exception {
-			Calendar calendario = Calendar.getInstance();
-			calendario.set(2002, 05, 15);
+			Usuario usuario = new Usuario();
+			usuario.setNome("Pedro Alcântara de Bragança e Bourbon");
+			usuario.setNomeSocial("Dom Pedro");
+			usuario.getPerfis().add(PerfilUsuario.CLIENTE);
 
-			Cliente cliente = new Cliente();
-			cliente.setNome("Pedro Alcântara de Bragança e Bourbon");
-			cliente.setDataCadastro(Calendar.getInstance().getTime());
-			cliente.setDataNascimento(calendario.getTime());
-			cliente.setNomeSocial("Dom Pedro");
-			
 			Telefone telefone = new Telefone();
 			telefone.setDdd("21");
 			telefone.setNumero("981234576");
-			cliente.getTelefones().add(telefone);
-			
+			usuario.getTelefones().add(telefone);
+
 			Endereco endereco = new Endereco();
 			endereco.setEstado("Rio de Janeiro");
 			endereco.setCidade("Rio de Janeiro");
@@ -51,20 +50,26 @@ public class AutomanagerApplication {
 			endereco.setNumero("1702");
 			endereco.setCodigoPostal("22021001");
 			endereco.setInformacoesAdicionais("Hotel Copacabana palace");
-			cliente.setEndereco(endereco);
-			
+			usuario.setEndereco(endereco);
+
 			Documento rg = new Documento();
-			rg.setTipo("RG");
+			rg.setTipo(TipoDocumento.RG);
+			rg.setDataEmissao(Calendar.getInstance().getTime());
 			rg.setNumero("1500");
-			
+
 			Documento cpf = new Documento();
-			cpf.setTipo("RG");
+			cpf.setTipo(TipoDocumento.CPF);
+			cpf.setDataEmissao(Calendar.getInstance().getTime());
 			cpf.setNumero("00000000001");
-			
-			cliente.getDocumentos().add(rg);
-			cliente.getDocumentos().add(cpf);
-			
-			repositorio.save(cliente);
+
+			usuario.getDocumentos().add(rg);
+			usuario.getDocumentos().add(cpf);
+
+			Email email = new Email();
+			email.setEndereco("dompedro@email.com");
+			usuario.getEmails().add(email);
+
+			repositorio.save(usuario);
 		}
 	}
 

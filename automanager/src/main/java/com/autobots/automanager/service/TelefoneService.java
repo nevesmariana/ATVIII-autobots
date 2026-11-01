@@ -2,17 +2,21 @@ package com.autobots.automanager.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.autobots.automanager.dto.request.TelefoneRequestDTO;
 import com.autobots.automanager.dto.response.TelefoneResponseDTO;
+import com.autobots.automanager.entidades.Empresa;
 import com.autobots.automanager.entidades.Telefone;
+import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.excecoes.TelefoneNaoEncontradoException;
 import com.autobots.automanager.mapper.TelefoneMapper;
-import com.autobots.automanager.repositorios.ClienteRepositorio;
+import com.autobots.automanager.repositorios.EmpresaRepositorio;
 import com.autobots.automanager.repositorios.TelefoneRepositorio;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 
 @Service
 public class TelefoneService {
@@ -24,7 +28,10 @@ public class TelefoneService {
     private TelefoneMapper mapper;
 
     @Autowired
-    private ClienteRepositorio clienteRepositorio;
+    private UsuarioRepositorio usuarioRepositorio;
+
+    @Autowired
+    private EmpresaRepositorio empresaRepositorio;
 
     public TelefoneResponseDTO cadastrarTelefone(
             TelefoneRequestDTO dto) {
@@ -71,12 +78,20 @@ public class TelefoneService {
         Telefone telefone = repositorio.findById(id)
                 .orElseThrow(() -> new TelefoneNaoEncontradoException(id));
 
-        clienteRepositorio.findByTelefones_Id(id)
-                .ifPresentOrElse(
-                        cliente -> {
-                            cliente.getTelefones().remove(telefone);
-                            clienteRepositorio.save(cliente);
-                        },
-                        () -> repositorio.delete(telefone));
+        Optional<Usuario> usuario = usuarioRepositorio.findByTelefones_Id(id);
+        if (usuario.isPresent()) {
+            usuario.get().getTelefones().removeIf(t -> t.getId().equals(id));
+            usuarioRepositorio.save(usuario.get());
+            return;
+        }
+
+        Optional<Empresa> empresa = empresaRepositorio.findByTelefones_Id(id);
+        if (empresa.isPresent()) {
+            empresa.get().getTelefones().removeIf(t -> t.getId().equals(id));
+            empresaRepositorio.save(empresa.get());
+            return;
+        }
+
+        repositorio.delete(telefone);
     }
 }

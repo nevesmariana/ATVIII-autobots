@@ -1,6 +1,10 @@
 package com.autobots.automanager.dto.response;
 
+import java.util.Date;
+
 import org.springframework.hateoas.RepresentationModel;
+
+import com.autobots.automanager.enumeracoes.TipoDocumento;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,6 +14,7 @@ import lombok.EqualsAndHashCode;
 public class DocumentoResponseDTO extends RepresentationModel<DocumentoResponseDTO> {
 
     private Long id;
-    private String tipo;
+    private TipoDocumento tipo;
+    private Date dataEmissao;
     private String numero;
 }

@@ -9,32 +9,26 @@ import com.autobots.automanager.entidades.Documento;
 @Component
 public class DocumentoMapper {
 
-    public Documento paraEntidade(DocumentoRequestDTO dto) {
-
-        Documento documento = new Documento();
-
+    public Documento paraEntidade(DocumentoRequestDTO dto) {Documento documento = new Documento();
         documento.setTipo(dto.getTipo());
         documento.setNumero(dto.getNumero());
+        documento.setDataEmissao(dto.getDataEmissao());
 
         return documento;
     }
 
-    public DocumentoResponseDTO paraResponseDTO(Documento documento) {
-
-        DocumentoResponseDTO dto = new DocumentoResponseDTO();
-
+    public DocumentoResponseDTO paraResponseDTO(Documento documento) { DocumentoResponseDTO dto = new DocumentoResponseDTO();
         dto.setId(documento.getId());
         dto.setTipo(documento.getTipo());
+        dto.setDataEmissao(documento.getDataEmissao());
         dto.setNumero(documento.getNumero());
 
         return dto;
     }
 
-    public void atualizarEntidade(
-            Documento documento,
-            DocumentoRequestDTO dto) {
-
+    public void atualizarEntidade( Documento documento,DocumentoRequestDTO dto) {
         documento.setTipo(dto.getTipo());
+        documento.setDataEmissao(dto.getDataEmissao());
         documento.setNumero(dto.getNumero());
     }
 }

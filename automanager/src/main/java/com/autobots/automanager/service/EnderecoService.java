@@ -2,17 +2,21 @@ package com.autobots.automanager.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.autobots.automanager.dto.request.EnderecoRequestDTO;
 import com.autobots.automanager.dto.response.EnderecoResponseDTO;
+import com.autobots.automanager.entidades.Empresa;
 import com.autobots.automanager.entidades.Endereco;
+import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.excecoes.EnderecoNaoEncontradoException;
 import com.autobots.automanager.mapper.EnderecoMapper;
-import com.autobots.automanager.repositorios.ClienteRepositorio;
+import com.autobots.automanager.repositorios.EmpresaRepositorio;
 import com.autobots.automanager.repositorios.EnderecoRepositorio;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 
 @Service
 public class EnderecoService {
@@ -24,7 +28,10 @@ public class EnderecoService {
     private EnderecoMapper mapper;
 
     @Autowired
-    private ClienteRepositorio clienteRepositorio;
+    private UsuarioRepositorio usuarioRepositorio;
+
+    @Autowired
+    private EmpresaRepositorio empresaRepositorio;
 
     public EnderecoResponseDTO cadastrarEndereco(
             EnderecoRequestDTO dto) {
@@ -71,12 +78,20 @@ public class EnderecoService {
         Endereco endereco = repositorio.findById(id)
                 .orElseThrow(() -> new EnderecoNaoEncontradoException(id));
 
-        clienteRepositorio.findByEndereco_Id(id)
-                .ifPresentOrElse(
-                        cliente -> {
-                            cliente.setEndereco(null);
-                            clienteRepositorio.save(cliente);
-                        },
-                        () -> repositorio.delete(endereco));
+        Optional<Usuario> usuario = usuarioRepositorio.findByEndereco_Id(id);
+        if (usuario.isPresent()) {
+            usuario.get().setEndereco(null);
+            usuarioRepositorio.save(usuario.get());
+            return;
+        }
+
+        Optional<Empresa> empresa = empresaRepositorio.findByEndereco_Id(id);
+        if (empresa.isPresent()) {
+            empresa.get().setEndereco(null);
+            empresaRepositorio.save(empresa.get());
+            return;
+        }
+
+        repositorio.delete(endereco);
     }
 }
